@@ -1,9 +1,6 @@
 import math
 
 def statement(invoice, plays):
-    total_amount = 0
-    volume_credits = 0
-
     def play_for(aPerformace):
         # Remove temporary local variable. because temporary variables create a lot of locally scoped names that complicate extractions.
         # this change is unlikely to significantly affect performance
@@ -29,14 +26,21 @@ def statement(invoice, plays):
 
         return result
 
-    result = f"Statement for {invoice['customer']}\n"
-    for perf in invoice["performances"]:
-        # add Volume credits
-        volume_credits += max(perf["audience"] - 30, 0)
+    def volume_credit_for(perf):
+        volume_credits = max(perf["audience"] - 30, 0)
         # add extra credit for every ten comedy attendees
         if "comedy" == play_for(perf)["type"]:
             volume_credits += math.ceil(perf["audience"])
 
+        return volume_credits
+
+    total_amount = 0
+    volume_credits = 0
+
+    result = f"Statement for {invoice['customer']}\n"
+    for perf in invoice["performances"]:
+        # add Volume credits
+        volume_credits += volume_credit_for(perf)
         # print line for this order
         result += f"    {play_for(perf)['name']}: {amount_for(perf) / 100} ({perf['audience']} seats)\n"
         total_amount += amount_for(perf)
