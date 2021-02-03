@@ -1,6 +1,10 @@
 import math
 
 def render_plain_text(data):
+    # split phase
+    # one is calculating the data required for the statement
+    # the other is rendering it into text or HTML
+
     result = f"Statement for {data['customer']}\n"
     # print line for this order
     for perf in data["performances"]:
@@ -9,8 +13,6 @@ def render_plain_text(data):
     result += f"Amount owed is {data['total_amount'] / 100}\n"
     result += f"You earned {data['total_volume_credits']} credits\n"
     return result
-
-
 
 
 def statement(invoice, plays):
@@ -61,17 +63,16 @@ def statement(invoice, plays):
     def total_amount(data):
         return sum([perf["amount"] for perf in data["performances"]])
 
-    # split phase
-    # one is calculating the data required for the statement
-    # the other is rendering it into text or HTML
-    statement_data = {}
-    # take the customer and add it to the intermediate object
-    statement_data["customer"] = invoice["customer"]
-    statement_data["performances"] = [enrich_performance(perf) for perf in invoice["performances"]]
-    statement_data["total_amount"] = total_amount(statement_data)
-    statement_data["total_volume_credits"] = total_volume_credits(statement_data)
+    def create_statement_data(invoice):
+        statement_data = {}
+        # take the customer and add it to the intermediate object
+        statement_data["customer"] = invoice["customer"]
+        statement_data["performances"] = [enrich_performance(perf) for perf in invoice["performances"]]
+        statement_data["total_amount"] = total_amount(statement_data)
+        statement_data["total_volume_credits"] = total_volume_credits(statement_data)
+        return statement_data
 
-    return render_plain_text(statement_data)
+    return render_plain_text(create_statement_data(invoice))
 
 
 # make test code
