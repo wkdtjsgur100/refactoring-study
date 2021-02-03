@@ -1,6 +1,43 @@
 import math
 
-def render_plain_text(data, plays):
+def render_plain_text(data):
+    def volume_credit_for(perf):
+        result = max(perf["audience"] - 30, 0)
+        # add extra credit for every ten comedy attendees
+        if "comedy" == perf["play"]["type"]:
+            result += math.ceil(perf["audience"])
+
+        return result
+
+    def total_volume_credits():
+        result = 0
+        for perf in data["performances"]:
+            # add Volume credits
+            result += volume_credit_for(perf)
+        return result
+
+    def total_amount():
+        return sum([perf["amount"] for perf in data["performances"]])
+
+    result = f"Statement for {data['customer']}\n"
+    # print line for this order
+    for perf in data["performances"]:
+        result += f"    {perf['play']['name']}: {perf['amount'] / 100} ({perf['audience']} seats)\n"
+
+    result += f"Amount owed is {total_amount() / 100}\n"
+    result += f"You earned {total_volume_credits()} credits\n"
+    return result
+
+
+
+
+def statement(invoice, plays):
+    def play_for(aPerformace):
+        # Remove temporary local variable. because temporary variables create a lot of locally scoped names that complicate extractions.
+        # this change is unlikely to significantly affect performance
+        # and even if it were, it is much easier to improve performance of a well-factored code base.
+        return plays[aPerformace["playID"]]
+
     def amount_for(aPerformance):
         # it's calculating the charge for one performance
         # rename some of the variables to make them clearer
@@ -20,46 +57,10 @@ def render_plain_text(data, plays):
 
         return result
 
-    def volume_credit_for(perf):
-        result = max(perf["audience"] - 30, 0)
-        # add extra credit for every ten comedy attendees
-        if "comedy" == perf["play"]["type"]:
-            result += math.ceil(perf["audience"])
-
-        return result
-
-    def total_volume_credits():
-        result = 0
-        for perf in data["performances"]:
-            # add Volume credits
-            result += volume_credit_for(perf)
-        return result
-
-    def total_amount():
-        return sum([amount_for(perf) for perf in data["performances"]])
-
-    result = f"Statement for {data['customer']}\n"
-    # print line for this order
-    for perf in data["performances"]:
-        result += f"    {perf['play']['name']}: {amount_for(perf) / 100} ({perf['audience']} seats)\n"
-
-    result += f"Amount owed is {total_amount() / 100}\n"
-    result += f"You earned {total_volume_credits()} credits\n"
-    return result
-
-
-
-
-def statement(invoice, plays):
-    def play_for(aPerformace):
-        # Remove temporary local variable. because temporary variables create a lot of locally scoped names that complicate extractions.
-        # this change is unlikely to significantly affect performance
-        # and even if it were, it is much easier to improve performance of a well-factored code base.
-        return plays[aPerformace["playID"]]
-
     def enrich_performance(aPerformance):
         result = dict(aPerformance)
-        result["play"] = play_for(aPerformance)
+        result["play"] = play_for(result)
+        result["amount"] = amount_for(result)
         return result
 
     # split phase
@@ -69,7 +70,7 @@ def statement(invoice, plays):
     # take the customer and add it to the intermediate object
     statement_data["customer"] = invoice["customer"]
     statement_data["performances"] = [enrich_performance(perf) for perf in invoice["performances"]]
-    return render_plain_text(statement_data, plays)
+    return render_plain_text(statement_data)
 
 
 # make test code
