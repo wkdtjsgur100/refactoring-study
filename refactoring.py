@@ -1,19 +1,11 @@
 import math
 
 def render_plain_text(data):
-    def volume_credit_for(perf):
-        result = max(perf["audience"] - 30, 0)
-        # add extra credit for every ten comedy attendees
-        if "comedy" == perf["play"]["type"]:
-            result += math.ceil(perf["audience"])
-
-        return result
-
     def total_volume_credits():
         result = 0
         for perf in data["performances"]:
             # add Volume credits
-            result += volume_credit_for(perf)
+            result += perf["volume_credit"]
         return result
 
     def total_amount():
@@ -32,6 +24,14 @@ def render_plain_text(data):
 
 
 def statement(invoice, plays):
+    def volume_credit_for(perf):
+        result = max(perf["audience"] - 30, 0)
+        # add extra credit for every ten comedy attendees
+        if "comedy" == perf["play"]["type"]:
+            result += math.ceil(perf["audience"])
+
+        return result
+
     def play_for(aPerformace):
         # Remove temporary local variable. because temporary variables create a lot of locally scoped names that complicate extractions.
         # this change is unlikely to significantly affect performance
@@ -61,6 +61,7 @@ def statement(invoice, plays):
         result = dict(aPerformance)
         result["play"] = play_for(result)
         result["amount"] = amount_for(result)
+        result["volume_credit"] = volume_credit_for(result)
         return result
 
     # split phase
