@@ -1,6 +1,6 @@
 import math
 
-def render_plain_text(invoice, plays):
+def render_plain_text(data, invoice, plays):
     def play_for(aPerformace):
         # Remove temporary local variable. because temporary variables create a lot of locally scoped names that complicate extractions.
         # this change is unlikely to significantly affect performance
@@ -44,7 +44,7 @@ def render_plain_text(invoice, plays):
     def total_amount():
         return sum([amount_for(perf) for perf in invoice["performances"]])
 
-    result = f"Statement for {invoice['customer']}\n"
+    result = f"Statement for {data['customer']}\n"
     # print line for this order
     for perf in invoice["performances"]:
         result += f"    {play_for(perf)['name']}: {amount_for(perf) / 100} ({perf['audience']} seats)\n"
@@ -57,8 +57,11 @@ def render_plain_text(invoice, plays):
 def statement(invoice, plays):
     # split phase
     # one is calculating the data required for the statement
-    # the other is redering it into text or HTML
-    return render_plain_text(invoice, plays)
+    # the other is rendering it into text or HTML
+    statement_data = {}
+    # take the customer and add it to the intermediate object
+    statement_data["customer"] = invoice["customer"]
+    return render_plain_text(statement_data, invoice, plays)
 
 
 # make test code
