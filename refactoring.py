@@ -55,11 +55,8 @@ def statement(invoice, plays):
         return result
 
     def total_volume_credits(data):
-        result = 0
-        for perf in data["performances"]:
-            # add Volume credits
-            result += perf["volume_credit"]
-        return result
+        # replace loop with pipeline
+        return sum(perf["volume_credit"] for perf in data["performances"])
 
     def total_amount(data):
         return sum([perf["amount"] for perf in data["performances"]])
