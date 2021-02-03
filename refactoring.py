@@ -54,6 +54,11 @@ def render_plain_text(data, plays):
     return result
 
 
+def enrich_performance(aPerformance):
+    result = dict(aPerformance)
+    return result
+
+
 def statement(invoice, plays):
     # split phase
     # one is calculating the data required for the statement
@@ -61,7 +66,7 @@ def statement(invoice, plays):
     statement_data = {}
     # take the customer and add it to the intermediate object
     statement_data["customer"] = invoice["customer"]
-    statement_data["performances"] = invoice["performances"]
+    statement_data["performances"] = [enrich_performance(perf) for perf in invoice["performances"]]
     return render_plain_text(statement_data, plays)
 
 
