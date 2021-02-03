@@ -1,6 +1,6 @@
 import math
 
-def statement(invoice, plays):
+def render_plain_text(invoice, plays):
     def play_for(aPerformace):
         # Remove temporary local variable. because temporary variables create a lot of locally scoped names that complicate extractions.
         # this change is unlikely to significantly affect performance
@@ -52,6 +52,13 @@ def statement(invoice, plays):
     result += f"Amount owed is {total_amount() / 100}\n"
     result += f"You earned {total_volume_credits()} credits\n"
     return result
+
+
+def statement(invoice, plays):
+    # split phase
+    # one is calculating the data required for the statement
+    # the other is redering it into text or HTML
+    return render_plain_text(invoice, plays)
 
 
 # make test code
